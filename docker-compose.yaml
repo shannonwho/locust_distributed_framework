@@ -1,0 +1,23 @@
+version: '3.7'
+services:
+  locust_master:
+    build:
+      context: .
+      target: test
+    ports:
+     - "8089:8089"
+    environment:
+     - ENV=local
+    volumes:
+      - .:/test
+    entrypoint: locust --host=http://35.203.190.146:5000
+
+  locust_worker:
+    build:
+      context: .
+      target: test
+    environment:
+    - ENV=local
+    volumes:
+      - .:/test
+    entrypoint: locust --worker --master-host locust_master
