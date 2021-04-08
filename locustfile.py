@@ -435,8 +435,8 @@ class simpleTest(TaskSet):
     @tag('simpleTest')
     @task(2)
     def simpleTest(self):
-        self.client.get('/api/v1/hash/get',
-            name='/api/v1/get')
+        self.client.get('/',
+            name='/docs')
 
 
     @tag('homepage')

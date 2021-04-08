@@ -10,7 +10,7 @@ services:
      - ENV=local
     volumes:
       - .:/test
-    entrypoint: locust --host=http://35.203.190.146:5000
+    entrypoint: locust --host=<HOST>
 
   locust_worker:
     build:
