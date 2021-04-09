@@ -17,7 +17,7 @@ import random
 import string
 import requests
 from rejson import Client, Path
-from demo.utils.sampleJSON import smallObj,bigObj
+from utils.sampleJSON import smallObj,bigObj
 from faker import Faker
 from faker.providers import company
 from flask import jsonify
