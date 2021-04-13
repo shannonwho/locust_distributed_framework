@@ -157,7 +157,7 @@ fields = ['id','name','address','location']
 BasicUserTestSet = get_id('basicUser')
 AdvancedUserTestSet = get_id('advancedUser')
 hugeObjTestSet = get_id('redisJSON')
-hugeObjFields = ['damage_relations', 'moves', 'pokemon']
+hugeObjFields = ['damage_relations', 'move_damage_class', 'pokemon']
 stringTestSet = get_id('stringJSON')
 
 """ Build the TaskSet """
@@ -246,6 +246,12 @@ class moreJSONTest(TaskSet):
         self.client.get('/api/v1/subdoc/{}/{}'.format(random.choice(hugeObjTestSet), random.choice(hugeObjFields)), timeout=50, name='/api/v1/get_json_by_key_and_field')
         # self.client.cookies.clear()
 
+    @tag('get_string_by_key_and_field')
+    @task(2)
+    def get_string_by_key_and_field(self):
+        self.client.get('/api/v1/string/{}/{}'.format(random.choice(stringTestSet), random.choice(hugeObjFields)), timeout=50, name='/api/v1/get_string_by_key_and_field')
+        # self.client.cookies.clear()
+
 
 
 """ Generate the load """
@@ -253,7 +259,7 @@ class moreJSONTest(TaskSet):
 class GenerateLoad(FastHttpUser):
     # connection_timeout=100
     # network_timeout=50
-    tasks = [testOnJSONSet]
+    tasks = [moreJSONTest]
     # min_wait = 5000
     # max_wait = 20000
 
