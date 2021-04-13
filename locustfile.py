@@ -164,7 +164,7 @@ stringTestSet = get_id('stringJSON')
 class testOnJSONSet(TaskSet):
     @tag('add_string')
     @task(3)
-    def add_static_huge_string(self):
+    def add_json_string(self):
         json_doc = json.dumps(hugeObj)
         self.client.post('/api/v1/string',
             data=json_doc,
@@ -174,7 +174,7 @@ class testOnJSONSet(TaskSet):
 
     @tag('add_json')
     @task(3)
-    def add_huge_json(self):
+    def add_json(self):
         json_doc = json.dumps(hugeObj)
         self.client.post('/api/v1/redisjson',
             data=json_doc,
@@ -185,35 +185,49 @@ class testOnJSONSet(TaskSet):
 
 class testOnJSONGet(TaskSet):
     @tag('get_string')
-    @task(1)
-    def get_static_huge_string(self):        
+    @task(2)
+    def get_string(self):        
         self.client.get('/api/v1/string/{}'.format(random.choice(stringTestSet)), timeout=50, name='/api/v1/get_string')
 
     @tag('get_json')
     @task(2)
-    def get_huge_json(self):
+    def get_json(self):
         self.client.get('/api/v1/doc/{}'.format(random.choice(hugeObjTestSet)), timeout=50, name='/api/v1/get_json')
         # self.client.cookies.clear()
 
 class testOnChangeJSON(TaskSet):
-    @tag('updateField_huge_json')
+    @tag('updateField_json')
     @task(2)
-    def updateField_huge_json(self):
+    def updateField_json(self):
         update = {
             'key': random.choice(hugeObjTestSet),
             'field': 'generation',
-            'name': 'generation-X'
+            'str': 'generation-X'
         }
         self.client.put('/api/v1/redisjson/update',
             data=json.dumps(update),
             headers={'Content-Type': 'application/json'},
             timeout=50,
-            name='/api/v1/updateField_huge_json')
+            name='/api/v1/updateField_json')
+
+    @tag('updateField_string')
+    @task(2)
+    def updateField_string(self):
+        update = {
+            'key': random.choice(stringTestSet),
+            'field': 'generation',
+            'str': 'generation-X'
+        }
+        self.client.put('/api/v1/string/update',
+            data=json.dumps(update),
+            headers={'Content-Type': 'application/json'},
+            timeout=50,
+            name='/api/v1/updateField_string')
 
     @tag('NumIncrby')
     @task(1)
     ##json.numincrby hugeObj:5eb32da6-f48c-4263-9a96-013ded607f52 pokemon[0].slot 1
-    def hugeObj_num_incr_by(self):
+    def num_incr_by(self):
         fieldNum = {
             'key': random.choice(hugeObjTestSet),
             'field': 'pokemon[0].slot',
@@ -226,183 +240,12 @@ class testOnChangeJSON(TaskSet):
             name='/api/v1/numbIncryBy')
 
 class moreJSONTest(TaskSet):
-    @tag('get_huge_json_by_key_and_field')
+    @tag('get_json_by_key_and_field')
     @task(2)
-    def get_huge_json_by_key_and_field(self):
-        self.client.get('/api/v1/subdoc/{}/{}'.format(random.choice(hugeObjTestSet), random.choice(hugeObjFields)), timeout=50, name='/api/v1/get_huge_json_by_key_and_field')
-        # self.client.cookies.clear()
-
-
-
-class testOnRandomGet(TaskSet):
-    """ task functions to be used in the TaskSet """
-    @tag('getJsonByKey')
-    @task(3)
-    def get_json_by_key(self):
-        self.client.get('/api/v1/doc/{}'.format(random.choice(AdvancedUserTestSet)), timeout=50, name='/api/v1/getJsonByKey')
-        # self.client.cookies.clear()
-
-    @tag('getField')
-    # @task(3)
     def get_json_by_key_and_field(self):
-        self.client.get('/api/v1/subdoc/{}/{}'.format(random.choice(BasicUserTestSet), random.choice(fields)), timeout=50, name='/api/v1/getValueByKeyAndFields')
+        self.client.get('/api/v1/subdoc/{}/{}'.format(random.choice(hugeObjTestSet), random.choice(hugeObjFields)), timeout=50, name='/api/v1/get_json_by_key_and_field')
         # self.client.cookies.clear()
 
-    @tag('getListOfFieldsByKey')
-    #@task(3)
-    def get_list_of_fields_by_key(self):
-        self.client.get('/api/v1/fields/{}'.format(random.choice(AdvancedUserTestSet)), timeout=50, name='/api/v1/examples/getListOfFieldsByKey')
-
-class testOnRandomJson(TaskSet):
-    @tag('add_random_small_json')
-    @task(3)
-    def add_random_small_json(self):
-        json_doc = {
-            'id':   "basicUser:" + str(uuid.uuid4()),
-            'name': fake.name(),
-            'age': fake.random_int(min=0, max=100),
-            'location': str(fake.latitude()),
-            'address': fake.street_address()
-        }
-        json_doc = json.dumps(json_doc)
-
-        self.client.post('/api/v1/redisjson',
-            data=json_doc,
-            headers={'Content-Type': 'application/json'},
-            timeout=50,
-            name='/api/v1/add_random_small_json')
-        # self.client.cookies.clear()
-    
-    @tag('add_random_big_json')
-    @task(3)
-    def add_random_big_json(self):
-        nested_json = {
-            'id': "advancedUser:" + str(uuid.uuid4()),
-            'name': fake.name(),
-            'activeStatus': False,
-            'age': str(fake.random_int(min=0, max=100)),
-            'contract':
-                {
-                    'name': fake.company(),
-                    'occupation': 'Solution Architect',
-                    'zipCode': "92603"
-                },
-            'location':[
-                {
-                'latitude': fake.latitude(),
-                'longitude':fake.longitude()
-                },
-                {
-                'latitude': fake.latitude(),
-                'longitude':fake.longitude()
-                },
-                {
-                'latitude': fake.latitude(),
-                'longitude':fake.longitude()
-                }],
-            'address': [
-                fake.street_address(), 
-                fake.street_address(), 
-                fake.street_address()]
-            }
-        self.client.post('/api/v1/redisjson',
-            data=json.dumps(nested_json,use_decimal=True),
-            headers={'Content-Type': 'application/json'},
-            timeout=50,
-            name='/api/v1/add_random_big_json')
-        # self.client.cookies.clear()
-
-    @tag('add_static_big_json')
-    @task(3)
-    def add_static_big_json(self):
-        json_doc = json.dumps(bigObj)
-        self.client.post('/api/v1/redisjson',
-            data=json_doc,
-            headers={'Content-Type': 'application/json'},
-            timeout=50,
-            name='/api/v1/add_static_big_json')
-        # self.client.cookies.clear()
-
-class testOnPutRandom(TaskSet):
-    @tag('updateField_json')
-    #@task(2)
-    def update_field(self):
-        update = {
-            'key': random.choice(AdvancedUserTestSet),
-            'field': 'name',
-            'str': 'Albert Z'
-        }
-        self.client.put('/api/v1/redisjson/update',
-            data=json.dumps(update),
-            headers={'Content-Type': 'application/json'},
-            timeout=50,
-            name='/api/v1/updateField')
-
-    @tag('update_nested_field_json')
-    @task(2)
-    def update_field_nested(self):
-        update = {
-            'key': random.choice(AdvancedUserTestSet),
-            'field': 'contract.name',
-            'str': 'Redis Lab'
-        }
-        self.client.put('/api/v1/redisjson/update',
-            data=json.dumps(update),
-            headers={'Content-Type': 'application/json'},
-            timeout=50,
-            name='/api/v1/update_field_nested')
-
-    @tag('appendString')
-    # @task(1)
-    def append_string(self):
-        append = {
-            'key': random.choice(AdvancedUserTestSet),
-            'field': 'name',
-            'str': ' Hu'
-        }
-        self.client.put('/api/v1/redisjson/append',
-            data=json.dumps(append),
-            headers={'Content-Type': 'application/json'},
-            timeout=50,
-            name='/api/v1/appendString')
-        # self.client.cookies.clear()
-
-    @tag('NumIncrby')
-    @task(1)
-    def num_incr_by(self):
-        fieldNum = {
-            'key': random.choice(BasicUserTestSet),
-            'field': 'age',
-            'num': random.randint(1,10)
-        }
-        self.client.put('/api/v1/redisjson/increby',
-            data=json.dumps(fieldNum),
-            headers={'Content-Type': 'application/json'},
-            timeout=50,
-            name='/api/v1/numbIncryBy')
-        # self.client.cookies.clear()
-
-    @tag('NumMultiby')
-    #@task(1)
-    def num_multi_by(self):
-        fieldNum = {
-            'key': random.choice(BasicUserTestSet),
-            'field': 'age',
-            'num': random.randint(1,10)
-        }
-        self.client.put('/api/v1/redisjson/multiby',
-            data=json.dumps(fieldNum),
-            headers={'Content-Type': 'application/json'},
-            timeout=50,
-            name='/api/v1/numMultiBy')
-        # self.client.cookies.clear()
-
-class simpleTest(TaskSet):
-    @tag('simpleTest')
-    @task(2)
-    def simpleTest(self):
-        self.client.get('/api/v1/hash/get',
-            name='/api/v1/get')
 
 
 """ Generate the load """
