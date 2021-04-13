@@ -159,6 +159,7 @@ AdvancedUserTestSet = get_id('advancedUser')
 hugeObjTestSet = get_id('redisJSON')
 hugeObjFields = ['damage_relations', 'move_damage_class', 'pokemon']
 stringTestSet = get_id('stringJSON')
+nestedFields = ['damage_relations.double_damage_from[0].name', 'names[0].language.name']
 
 """ Build the TaskSet """
 class testOnJSONSet(TaskSet):
@@ -195,6 +196,7 @@ class testOnJSONGet(TaskSet):
         self.client.get('/api/v1/doc/{}'.format(random.choice(hugeObjTestSet)), timeout=50, name='/api/v1/get_json')
         # self.client.cookies.clear()
 
+
 class testOnChangeJSON(TaskSet):
     @tag('updateField_json')
     @task(2)
@@ -210,6 +212,7 @@ class testOnChangeJSON(TaskSet):
             timeout=50,
             name='/api/v1/updateField_json')
 
+
     @tag('updateField_string')
     @task(2)
     def updateField_string(self):
@@ -223,6 +226,35 @@ class testOnChangeJSON(TaskSet):
             headers={'Content-Type': 'application/json'},
             timeout=50,
             name='/api/v1/updateField_string')
+
+    @tag('update_nested_Field_json')
+    @task(2)
+    def update_nested_Field_json(self):
+        update = {
+            'key': random.choice(hugeObjTestSet),
+            'field': 'damage_relations.double_damage_from[0].name',
+            'str': 'lightening'
+        }
+        self.client.put('/api/v1/redisjson/update',
+            data=json.dumps(update),
+            headers={'Content-Type': 'application/json'},
+            timeout=50,
+            name='/api/v1/update_nested_Field_json')
+
+    @tag('json_append_string')
+    @task(2)
+    def json_append_string(self):
+        update = {
+            'key': random.choice(hugeObjTestSet),
+            'field': 'damage_relations.double_damage_from[0].name',
+            'str': ' & Jumping'}
+
+        self.client.put('/api/v1/redisjson/append',
+            data=json.dumps(update),
+            headers={'Content-Type': 'application/json'},
+            timeout=50,
+            name='/api/v1/json_append_string')
+
 
     @tag('NumIncrby')
     @task(1)
@@ -246,6 +278,14 @@ class moreJSONTest(TaskSet):
         self.client.get('/api/v1/subdoc/{}/{}'.format(random.choice(hugeObjTestSet), random.choice(hugeObjFields)), timeout=50, name='/api/v1/get_json_by_key_and_field')
         # self.client.cookies.clear()
 
+
+    @tag('get_nested_json_by_key_and_field')
+    @task(2)
+    def get_json(self):
+        self.client.get('/api/v1/subdoc/{}/{}'.format(random.choice(hugeObjTestSet), random.choice(nestedFields)), timeout=50, name='/api/v1/get_nested_json')
+        # self.client.cookies.clear()
+    
+
     @tag('get_string_by_key_and_field')
     @task(2)
     def get_string_by_key_and_field(self):
@@ -259,7 +299,7 @@ class moreJSONTest(TaskSet):
 class GenerateLoad(FastHttpUser):
     # connection_timeout=100
     # network_timeout=50
-    tasks = [moreJSONTest]
+    tasks = [testOnChangeJSON]
     # min_wait = 5000
     # max_wait = 20000
 
