@@ -8,6 +8,8 @@ services:
      - "8089:8089"
     environment:
      - ENV=local
+    env_file: 
+      - local_conf/locust.conf
     volumes:
       - .:/test
     entrypoint: locust --host=<HOST>
@@ -18,21 +20,23 @@ services:
       target: test
     environment:
     - ENV=local
+    env_file: 
+      - local_conf/locust.conf
     volumes:
       - .:/test
     entrypoint: locust --worker --master-host locust_master
 
-  # cadvisor:
-  #   image: google/cadvisor:latest
-  #   container_name: cadvisor
-  #   ports:
-  #       - 8080:8080
-  #   privileged: true
-  #   volumes:
-  #       - /:/rootfs:ro
-  #       - /var/run:/var/run:rw
-  #       - /sys:/sys:ro
-  #       - /var/lib/docker/:/var/lib/docker:ro
+  cadvisor:
+    image: google/cadvisor:latest
+    container_name: cadvisor
+    ports:
+        - 8080:8080
+    privileged: true
+    volumes:
+        - /:/rootfs:ro
+        - /var/run:/var/run:rw
+        - /sys:/sys:ro
+        - /var/lib/docker/:/var/lib/docker:ro
 
 
 
