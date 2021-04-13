@@ -24,7 +24,9 @@ run the docker compose
 
 
 # The locust Test: 
-
+## Sample Data:
+  - 2 Pokemon log object (55k & 15k bytes) -> locustfile.py
+  - Randomely generated User object (basic/advanced) -> locustfileTwo.py
 ## Main test cases:
 
 - READ entire JSON objects by key
